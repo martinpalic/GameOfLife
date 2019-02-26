@@ -7,19 +7,25 @@
         /// </summary>
         /// <param name="size">Size of square game field</param>
         /// <param name="initConfig">initial configuration of game, true == life present</param>
-        /// <returns>Configuration of initial generation</returns>
-        bool[,] NewGame(int size, bool[,] initConfig);
+        void NewGame(int size);
+
+        /// <summary>
+        /// set cell on position to live or dead
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="alive"></param>
+        void SetPosition(int x, int y, bool alive);
 
         /// <summary>
         /// Get next generation for actual game, this generation becomes actual one
         /// </summary>
-        /// <returns>Configuration of new generation</returns>
-        bool[,] GetNextGeneration();
+        void GetNextGeneration();
 
         /// <summary>
         /// gets current generation for actual game, no modifications are done
         /// </summary>
-        /// <returns>Actual game Configuration</returns>
-        bool[,] GetActualGeneration();
+        /// <returns>Actual game Configuration at given point</returns>
+        bool GetActualGeneration(int x, int y);
     }
 }
