@@ -15,29 +15,31 @@ namespace GOLConsole
             if (int.TryParse(input, out int size))
             {
                 IGameOfLife game = new GameOfLifeNaive();
-                bool[,] field = new bool[size,size];
                 var rand = new Random();
+
+                game.NewGame(size);
+
                 for (int i = 0; i < size; i++)
                 {
                     for (int j = 0; j < size; j++)
                     {
-                        field[i, j] = rand.Next(2) != 0;
+                        game.SetPosition(i,j,rand.Next(100) > 75);
                     }
                 }
 
-                game.NewGame(size, field);
-                outputField(size, field);
+                OutputField(size, game);
 
                 while (true)
                 {
                     Console.WriteLine("Press Enter To Next Generation");
                     Console.ReadLine();
-                    outputField(size, game.GetNextGeneration());
+                    game.GetNextGeneration();
+                    OutputField(size, game);
                 }
             }
         }
 
-        private static void outputField(int size, bool[,] field)
+        private static void OutputField(int size, IGameOfLife game)
         {
             string line;
             for (int i = 0; i < size; i++)
@@ -45,7 +47,7 @@ namespace GOLConsole
                 line = "";
                 for (int j = 0; j < size; j++)
                 {
-                    line = line + (field[i, j] ? "X" : "_");
+                    line = line + (game.GetActualGeneration(i,j) ? "X" : "_");
                 }
                 Console.WriteLine(line);
             }

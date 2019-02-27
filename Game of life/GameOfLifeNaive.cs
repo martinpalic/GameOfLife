@@ -1,82 +1,94 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace GOLConsole
 {
     //Naive implementation of GOL
-    //usage of arrays doesnt suffice the input size needs
     public class GameOfLifeNaive : IGameOfLife
     {
         public int Size { get; set; }
-        public bool[,] ActualGeneration;
-        public bool[,] FutureGeneration;
+        public IList<IList<bool>> ActualGeneration;
+        public IList<IList<bool>> FutureGeneration;
 
-        public bool[,] GetActualGeneration()
+        public void NewGame(int size)
         {
-            return this.ActualGeneration;
-        }
-
-        public bool[,] NewGame(int size, bool[,] initConfig)
-        {
-            if (initConfig.GetLength(0) != size || initConfig.GetLength(1) != size)
+            this.ActualGeneration = new List<IList<bool>>();
+            this.FutureGeneration = new List<IList<bool>>();
+            this.Size = size;
+            for (int i = 0; i < size; i++)
             {
-                throw new ArgumentException("Size of field is not uniform in both dimensions or Size does not match the field size");
+                this.ActualGeneration.Add(new List<bool>()); 
+                this.FutureGeneration.Add(new List<bool>());
+                for (int j = 0; j < size; j++)
+                {
+                    ActualGeneration[i].Add(false);
+                    FutureGeneration[i].Add(false);
+                }
             }
 
-            this.ActualGeneration = initConfig;
-            FutureGeneration = new bool[size,size];
-            this.Size = size;
-
-            return this.ActualGeneration;
         }
 
-        public bool[,] GetNextGeneration()
+        public void SetPosition(int x, int y, bool alive)
+        {
+            ActualGeneration[x][y] = alive;
+        }
+
+        public void GetNextGeneration()
         {
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
                 {
-                    AgeOneCell(i, j);
+                    AgeCell(i,  j);
                 }
             }
 
+            var tmp = ActualGeneration;
             ActualGeneration = FutureGeneration;
-            return ActualGeneration;
+            FutureGeneration = tmp;
         }
 
-        private void AgeOneCell(int i, int j)
+        private void AgeCell(int x, int y)
         {
-            int liveNeighbours = 0;
+            int liveNeighbors = 0;
 
-            int lowerX = i > 0 ? i - 1 : 0;
-            int lowerY = j > 0 ? j - 1 : 0;
-            int upperX = i < Size - 1 ? i + 1 : Size - 1;
-            int upperY = j < Size - 1 ? j + 1 : Size - 1;
+            int lowX = x > 0 ? x - 1 : x;
+            int lowY = y > 0 ? y - 1 : y;
+            int uppX = x < Size - 1 ? x + 1 : Size - 1;
+            int uppY = y < Size - 1 ? y + 1 : Size - 1;
 
-            for (int k = lowerX; k < upperX+1; k++)
+            for (int i = lowX; i < uppX+1; i++)
             {
-                for (int l = lowerY; l < upperY+1; l++)
+                for (int j = lowY; j < uppY +1; j++)
                 {
-                    if(k==i && l==j) continue;
-                    if (ActualGeneration[k, l]) liveNeighbours++;
+                    if (i != x && j != y && ActualGeneration[i][j])
+                    {
+                        liveNeighbors++;
+                    }
                 }
             }
 
-            if (ActualGeneration[i, j])
+            FutureGeneration[x][y] = applyRules(ActualGeneration[x][y], liveNeighbors);
+        }
+
+        private bool applyRules(bool alive, int liveNeighbours)
+        {
+            if (alive)
             {
-                if (liveNeighbours == 2 || liveNeighbours == 3)
-                {
-                    return;
-                }
-                FutureGeneration[i, j] = false;
-                return;
+                if (liveNeighbours == 2 || liveNeighbours == 3) return true;
+                return false;
             }
             else
             {
-                if (liveNeighbours == 3) FutureGeneration[i, j] = true;
-                return;
+                if (liveNeighbours == 3) return true;
+                return false;
             }
+        }
 
+        public bool GetActualGeneration(int x, int y)
+        {
+            return ActualGeneration[x][y];
         }
     }
 }
